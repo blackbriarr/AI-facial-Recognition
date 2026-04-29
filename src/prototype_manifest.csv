@@ -1,0 +1,55 @@
+import os
+import csv
+import shutil
+
+RAW_DIR = "data/raw/lfw"
+OUTPUT_DIR = "data/processed/prototype"
+MANIFEST_PATH = "data/manifest/prototype_manifest.csv"
+
+NUM_IDENTITIES = 6
+IMAGES_PER_ID = 12
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(MANIFEST_PATH), exist_ok=True)
+
+identity_counts = {}
+for person in os.listdir(RAW_DIR):
+    person_dir = os.path.join(RAW_DIR, person)
+    if os.path.isdir(person_dir):
+        identity_counts[person] = len(os.listdir(person_dir))
+
+top_identities = sorted(
+    identity_counts.items(),
+    key=lambda x: x[1],
+    reverse=True
+)[:NUM_IDENTITIES]
+
+print("Selected identities:")
+for name, count in top_identities:
+    print(f"{name}: {count} images")
+
+with open(MANIFEST_PATH, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["identity", "image_path", "pose", "usage", "source", "image_id"])
+
+    for person, _ in top_identities:
+        src_dir = os.path.join(RAW_DIR, person)
+        dst_dir = os.path.join(OUTPUT_DIR, person)
+        os.makedirs(dst_dir, exist_ok=True)
+
+        images = sorted(os.listdir(src_dir))[:IMAGES_PER_ID]
+
+        for i, img in enumerate(images):
+            src_img = os.path.join(src_dir, img)
+            dst_img = os.path.join(dst_dir, img)
+            shutil.copy(src_img, dst_img)
+
+            usage = "gallery" if i == 0 else "query"
+            pose = "unknown"   # change later to front/side when you label properly
+            source = "lfw"
+            image_id = os.path.splitext(img)[0]
+
+            writer.writerow([person, dst_img, pose, usage, source, image_id])
+
+print("Prototype subset created successfully.")
+print(f"Manifest saved to {MANIFEST_PATH}")

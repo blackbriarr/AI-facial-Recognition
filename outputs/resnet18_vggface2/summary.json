@@ -1,0 +1,17 @@
+{
+  "data_root": "data/vggface2_aligned",
+  "epochs": 1,
+  "batch_size": 16,
+  "image_size": 224,
+  "learning_rate": 0.001,
+  "num_classes": 200,
+  "train_images": 52313,
+  "val_images": 11131,
+  "test_images": 11426,
+  "best_val_accuracy": 0.40364747102686194,
+  "test_loss": 2.6199925489294618,
+  "test_accuracy": 0.40617889025030635,
+  "device": "cpu",
+  "pretrained": true,
+  "frozen_backbone": true
+}
